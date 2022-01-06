@@ -18,6 +18,7 @@ func main() {
 	textArt := flag.Bool("t", false, "print as text-art on stdout")
 	negative := flag.Bool("i", false, "invert black and white")
 	disableBorder := flag.Bool("d", false, "disable QR Code border")
+	erLevel := flag.Int("e", int(qrcode.Highest), "error recovery level (1=lowest, 4=highest")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `qrcode -- QR Code encoder in Go
 
@@ -39,13 +40,18 @@ Usage:
 	}
 	flag.Parse()
 
+	recoveryLevel := qrcode.RecoveryLevel(*erLevel)
+	if recoveryLevel < qrcode.Low || recoveryLevel > qrcode.Highest {
+		panic(fmt.Errorf("error recovery level %v is out of range (%v to %v)", recoveryLevel, qrcode.Low, qrcode.Highest))
+	}
+
 	content, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		panic(fmt.Errorf("could not read from stdin: %v", err))
 	}
 
 	var q *qrcode.QRCode
-	q, err = qrcode.New(content, qrcode.Low)
+	q, err = qrcode.New(content, recoveryLevel)
 	checkError(err)
 
 	if *disableBorder {
