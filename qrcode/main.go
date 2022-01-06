@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	qrcode "github.com/skip2/go-qrcode"
+	qrcode "github.com/kstenerud/go-qrcode"
 )
 
 func main() {

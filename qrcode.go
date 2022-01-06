@@ -60,8 +60,8 @@ import (
 	"log"
 	"os"
 
-	bitset "github.com/skip2/go-qrcode/bitset"
-	reedsolomon "github.com/skip2/go-qrcode/reedsolomon"
+	bitset "github.com/kstenerud/go-qrcode/bitset"
+	reedsolomon "github.com/kstenerud/go-qrcode/reedsolomon"
 )
 
 // defaultQuietZoneSize returns the number of pixels of border space on each side of
