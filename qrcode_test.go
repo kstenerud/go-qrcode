@@ -37,7 +37,7 @@ func TestQRCodeMaxCapacity(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, err := New(strings.Repeat(test.string, test.numRepetitions), Low)
+		_, err := New([]byte(strings.Repeat(test.string, test.numRepetitions)), Low)
 
 		if err != nil {
 			t.Errorf("%d x '%s' got %s expected success", test.numRepetitions,
@@ -46,7 +46,7 @@ func TestQRCodeMaxCapacity(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, err := New(strings.Repeat(test.string, test.numRepetitions+1), Low)
+		_, err := New([]byte(strings.Repeat(test.string, test.numRepetitions+1)), Low)
 
 		if err == nil {
 			t.Errorf("%d x '%s' chars encodable, expected not encodable",
@@ -110,17 +110,17 @@ func TestQRCodeVersionCapacity(t *testing.T) {
 		var b *QRCode
 		var err error
 
-		n, err = New(numericData, test.level)
+		n, err = New([]byte(numericData), test.level)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		a, err = New(alphanumericData, test.level)
+		a, err = New([]byte(alphanumericData), test.level)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		b, err = New(byteData, test.level)
+		b, err = New([]byte(byteData), test.level)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
@@ -144,7 +144,7 @@ func TestQRCodeVersionCapacity(t *testing.T) {
 
 func TestQRCodeISOAnnexIExample(t *testing.T) {
 	var q *QRCode
-	q, err := New("01234567", Medium)
+	q, err := New([]byte("01234567"), Medium)
 
 	if err != nil {
 		t.Fatalf("Error producing ISO Annex I Example: %s, expected success",
@@ -163,13 +163,13 @@ func TestQRCodeISOAnnexIExample(t *testing.T) {
 
 func BenchmarkQRCodeURLSize(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		New("http://www.example.org", Medium)
+		New([]byte("http://www.example.org"), Medium)
 	}
 }
 
 func BenchmarkQRCodeMaximumSize(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		// 7089 is the maximum encodable number of numeric digits.
-		New(strings.Repeat("0", 7089), Low)
+		New([]byte(strings.Repeat("0", 7089)), Low)
 	}
 }

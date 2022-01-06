@@ -6,8 +6,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
-	"strings"
 
 	qrcode "github.com/skip2/go-qrcode"
 )
@@ -20,37 +20,32 @@ func main() {
 	disableBorder := flag.Bool("d", false, "disable QR Code border")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `qrcode -- QR Code encoder in Go
-https://github.com/skip2/go-qrcode
 
 Flags:
 `)
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, `
 Usage:
-  1. Arguments except for flags are joined by " " and used to generate QR code.
-     Default output is STDOUT, pipe to imagemagick command "display" to display
-     on any X server.
+  1. Data is read from STDIN and used to generate the QR code.
+     Default output is STDOUT.
 
-       qrcode hello word | display
+	 echo "hello world" | qrcode > out.png
 
-  2. Save to file if "display" not available:
+  2. Pipe to imagemagick command "display" to display on any X server.
 
-       qrcode "homepage: https://github.com/skip2/go-qrcode" > out.png
+     echo "hello world" | qrcode | display
 
 `)
 	}
 	flag.Parse()
 
-	if len(flag.Args()) == 0 {
-		flag.Usage()
-		checkError(fmt.Errorf("Error: no content given"))
+	content, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		panic(fmt.Errorf("could not read from stdin: %v", err))
 	}
 
-	content := strings.Join(flag.Args(), " ")
-
-	var err error
 	var q *qrcode.QRCode
-	q, err = qrcode.New(content, qrcode.Highest)
+	q, err = qrcode.New(content, qrcode.Low)
 	checkError(err)
 
 	if *disableBorder {

@@ -116,7 +116,7 @@ type dataEncoder struct {
 
 // newDataEncoder constructs a dataEncoder.
 func newDataEncoder(t dataEncoderType) *dataEncoder {
-	d := &dataEncoder{}
+	var d *dataEncoder
 
 	switch t {
 	case dataEncoderType1To9:
@@ -196,7 +196,7 @@ func (d *dataEncoder) encode(data []byte) (*bitset.Bitset, error) {
 	}
 
 	if singleByteSegmentLength <= optimizedLength {
-		d.optimised = []segment{segment{dataMode: highestRequiredMode, data: d.data}}
+		d.optimised = []segment{{dataMode: highestRequiredMode, data: d.data}}
 	}
 
 	// Encode data.

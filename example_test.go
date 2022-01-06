@@ -15,7 +15,7 @@ import (
 )
 
 func TestExampleEncode(t *testing.T) {
-	if png, err := Encode("https://example.org", Medium, 256); err != nil {
+	if png, err := Encode([]byte("https://example.org"), Medium, 256); err != nil {
 		t.Errorf("Error: %s", err.Error())
 	} else {
 		fmt.Printf("PNG is %d bytes long", len(png))
@@ -24,7 +24,7 @@ func TestExampleEncode(t *testing.T) {
 
 func TestExampleWriteFile(t *testing.T) {
 	filename := "example.png"
-	if err := WriteFile("https://example.org", Medium, 256, filename); err != nil {
+	if err := WriteFile([]byte("https://example.org"), Medium, 256, filename); err != nil {
 		if err = os.Remove(filename); err != nil {
 			t.Errorf("Error: %s", err.Error())
 		}
@@ -32,7 +32,7 @@ func TestExampleWriteFile(t *testing.T) {
 }
 
 func TestExampleEncodeWithColourAndWithoutBorder(t *testing.T) {
-	q, err := New("https://example.org", Medium)
+	q, err := New([]byte("https://example.org"), Medium)
 	if err != nil {
 		t.Errorf("Error: %s", err)
 		return

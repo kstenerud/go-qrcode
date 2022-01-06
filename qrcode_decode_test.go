@@ -67,7 +67,7 @@ func TestDecodeBasic(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		content := strings.Repeat(test.content, test.numRepetitions)
+		content := []byte(strings.Repeat(test.content, test.numRepetitions))
 
 		q, err := New(content, test.level)
 		if err != nil {
@@ -94,7 +94,7 @@ func TestDecodeAllVersionLevels(t *testing.T) {
 				level)
 
 			q, err := NewWithForcedVersion(
-				fmt.Sprintf("v-%d l-%d", version, level), version, level)
+				[]byte(fmt.Sprintf("v-%d l-%d", version, level)), version, level)
 			if err != nil {
 				t.Fatal(err.Error())
 				return
@@ -121,11 +121,11 @@ func TestDecodeAllCharacters(t *testing.T) {
 	var content string
 
 	// zbarimg has trouble with null bytes, hence start from ASCII 1.
-	for i := 1; i < 256; i++ {
+	for i := rune(1); i < 256; i++ {
 		content += string(i)
 	}
 
-	q, err := New(content, Low)
+	q, err := New([]byte(content), Low)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -154,11 +154,11 @@ func TestDecodeFuzz(t *testing.T) {
 		for j := 0; j < len; j++ {
 			// zbarimg seems to have trouble with special characters, test printable
 			// characters only for now.
-			content += string(32 + r.Intn(94))
+			content += string(32 + rune(r.Intn(94)))
 		}
 
 		for _, level := range []RecoveryLevel{Low, Medium, High, Highest} {
-			q, err := New(content, level)
+			q, err := New([]byte(content), level)
 			if err != nil {
 				t.Error(err.Error())
 			}
@@ -178,7 +178,7 @@ func zbarimgCheck(q *QRCode) error {
 		return err
 	}
 
-	if s != q.Content {
+	if s != string(q.Content) {
 		q.WriteFile(256, fmt.Sprintf("%x.png", q.Content))
 		return fmt.Errorf("got '%s' (%x) expected '%s' (%x)", s, s, q.Content, q.Content)
 	}
@@ -218,7 +218,7 @@ func BenchmarkDecodeTest(b *testing.B) {
 	}
 
 	for n := 0; n < b.N; n++ {
-		q, err := New("content", Medium)
+		q, err := New([]byte("content"), Medium)
 		if err != nil {
 			b.Error(err.Error())
 		}

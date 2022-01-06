@@ -71,7 +71,7 @@ import (
 // variable sized image to be returned: See the documentation for Image().
 //
 // To serve over HTTP, remember to send a Content-Type: image/png header.
-func Encode(content string, level RecoveryLevel, size int) ([]byte, error) {
+func Encode(content []byte, level RecoveryLevel, size int) ([]byte, error) {
 	var q *QRCode
 
 	q, err := New(content, level)
@@ -88,7 +88,7 @@ func Encode(content string, level RecoveryLevel, size int) ([]byte, error) {
 // size is both the image width and height in pixels. If size is too small then
 // a larger image is silently written. Negative values for size cause a variable
 // sized image to be written: See the documentation for Image().
-func WriteFile(content string, level RecoveryLevel, size int, filename string) error {
+func WriteFile(content []byte, level RecoveryLevel, size int, filename string) error {
 	var q *QRCode
 
 	q, err := New(content, level)
@@ -106,7 +106,7 @@ func WriteFile(content string, level RecoveryLevel, size int, filename string) e
 // size is both the image width and height in pixels. If size is too small then
 // a larger image is silently written. Negative values for size cause a variable
 // sized image to be written: See the documentation for Image().
-func WriteColorFile(content string, level RecoveryLevel, size int, background,
+func WriteColorFile(content []byte, level RecoveryLevel, size int, background,
 	foreground color.Color, filename string) error {
 
 	var q *QRCode
@@ -126,7 +126,7 @@ func WriteColorFile(content string, level RecoveryLevel, size int, background,
 // A QRCode represents a valid encoded QRCode.
 type QRCode struct {
 	// Original content encoded.
-	Content string
+	Content []byte
 
 	// QR Code type.
 	Level         RecoveryLevel
@@ -153,7 +153,7 @@ type QRCode struct {
 //	q, err := qrcode.New("my content", qrcode.Medium)
 //
 // An error occurs if the content is too long.
-func New(content string, level RecoveryLevel) (*QRCode, error) {
+func New(content []byte, level RecoveryLevel) (*QRCode, error) {
 	encoders := []dataEncoderType{dataEncoderType1To9, dataEncoderType10To26,
 		dataEncoderType27To40}
 
@@ -164,7 +164,7 @@ func New(content string, level RecoveryLevel) (*QRCode, error) {
 
 	for _, t := range encoders {
 		encoder = newDataEncoder(t)
-		encoded, err = encoder.encode([]byte(content))
+		encoded, err = encoder.encode(content)
 
 		if err != nil {
 			continue
@@ -206,7 +206,7 @@ func New(content string, level RecoveryLevel) (*QRCode, error) {
 //	q, err := qrcode.NewWithForcedVersion("my content", 25, qrcode.Medium)
 //
 // An error occurs in case of invalid version.
-func NewWithForcedVersion(content string, version int, level RecoveryLevel) (*QRCode, error) {
+func NewWithForcedVersion(content []byte, version int, level RecoveryLevel) (*QRCode, error) {
 	var encoder *dataEncoder
 
 	switch {
@@ -217,11 +217,11 @@ func NewWithForcedVersion(content string, version int, level RecoveryLevel) (*QR
 	case version >= 27 && version <= 40:
 		encoder = newDataEncoder(dataEncoderType27To40)
 	default:
-		return nil, fmt.Errorf("Invalid version %d (expected 1-40 inclusive)", version)
+		return nil, fmt.Errorf("invalid version %d (expected 1-40 inclusive)", version)
 	}
 
 	var encoded *bitset.Bitset
-	encoded, err := encoder.encode([]byte(content))
+	encoded, err := encoder.encode(content)
 
 	if err != nil {
 		return nil, err
@@ -234,7 +234,7 @@ func NewWithForcedVersion(content string, version int, level RecoveryLevel) (*QR
 	}
 
 	if encoded.Len() > chosenVersion.numDataBits() {
-		return nil, fmt.Errorf("Cannot encode QR code: content too large for fixed size QR Code version %d (encoded length is %d bits, maximum length is %d bits)",
+		return nil, fmt.Errorf("cannot encode QR code: content too large for fixed size QR Code version %d (encoded length is %d bits, maximum length is %d bits)",
 			version,
 			encoded.Len(),
 			chosenVersion.numDataBits())
@@ -510,15 +510,6 @@ func (q *QRCode) encodeBlocks() *bitset.Bitset {
 	result.AppendNumBools(q.version.numRemainderBits, false)
 
 	return result
-}
-
-// max returns the maximum of a and b.
-func max(a int, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
 }
 
 // addPadding pads the encoded data upto the full length required.

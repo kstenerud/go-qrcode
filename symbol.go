@@ -116,9 +116,9 @@ func (m *symbol) bitmap() [][]bool {
 	return module
 }
 
-// string returns a pictorial representation of the symbol, suitable for
+// String returns a pictorial representation of the symbol, suitable for
 // printing in a TTY.
-func (m *symbol) string() string {
+func (m *symbol) String() string {
 	var result string
 
 	for _, row := range m.module {
