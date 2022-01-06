@@ -18,7 +18,7 @@ func main() {
 	textArt := flag.Bool("t", false, "print as text-art on stdout")
 	negative := flag.Bool("i", false, "invert black and white")
 	borderSize := flag.Int("b", qrcode.DefaultQuietZoneSize, "QR Code border size")
-	erLevel := flag.Int("e", int(qrcode.Highest), "error recovery level (1=lowest, 4=highest")
+	erLevel := flag.Int("e", int(qrcode.Highest), fmt.Sprintf("error recovery level: %v=lowest, %v=highest", qrcode.Low, qrcode.Highest))
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `qrcode -- QR Code encoder in Go
 

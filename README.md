@@ -2,7 +2,7 @@
 
 <img src='https://skip.org/img/nyancat-youtube-qr.png' align='right'>
 
-Package qrcode implements a QR Code encoder. [![Build Status](https://travis-ci.org/skip2/go-qrcode.svg?branch=master)](https://travis-ci.org/skip2/go-qrcode)
+Package qrcode implements a QR Code encoder. [![Build Status](https://travis-ci.org/kstenerud/go-qrcode.svg?branch=master)](https://travis-ci.org/kstenerud/go-qrcode)
 
 A QR Code is a matrix (two-dimensional) barcode. Arbitrary content may be encoded, with URLs being a popular choice :)
 
@@ -10,32 +10,36 @@ Each QR Code contains error recovery information to aid reading damaged or obscu
 
 ## Install
 
-    go get -u github.com/skip2/go-qrcode/...
+    go get -u github.com/kstenerud/go-qrcode/...
 
 A command-line tool `qrcode` will be built into `$GOPATH/bin/`.
 
 ## Usage
 
-    import qrcode "github.com/skip2/go-qrcode"
+    import qrcode "github.com/kstenerud/go-qrcode"
 
 - **Create a 256x256 PNG image:**
 
         var png []byte
-        png, err := qrcode.Encode("https://example.org", qrcode.Medium, 256)
+        png, err := qrcode.Encode([]byte("https://example.org"), qrcode.Medium, 256)
 
 - **Create a 256x256 PNG image and write to a file:**
 
-        err := qrcode.WriteFile("https://example.org", qrcode.Medium, 256, "qr.png")
+        err := qrcode.WriteFile([]byte("https://example.org"), qrcode.Medium, 256, "qr.png")
 
 - **Create a 256x256 PNG image with custom colors and write to file:**
 
-        err := qrcode.WriteColorFile("https://example.org", qrcode.Medium, 256, color.Black, color.White, "qr.png")
+        err := qrcode.WriteColorFile([]byte("https://example.org"), qrcode.Medium, 256, color.Black, color.White, "qr.png")
 
 All examples use the qrcode.Medium error Recovery Level and create a fixed 256x256px size QR Code. The last function creates a white on black instead of black on white QR Code.
 
+## Important!
+
+QR codes are only meant to support ISO 8859-1 text and a special kanji encoding! If you pass in UTF-8 text, it may not be decoded properly by a QR code scanner. Characters from the ASCII range (0x20-0x7e) will always work.
+
 ## Documentation
 
-[![godoc](https://godoc.org/github.com/skip2/go-qrcode?status.png)](https://godoc.org/github.com/skip2/go-qrcode)
+[![godoc](https://godoc.org/github.com/kstenerud/go-qrcode?status.png)](https://godoc.org/github.com/kstenerud/go-qrcode)
 
 ## Demoapp
 
@@ -47,37 +51,35 @@ A command-line tool `qrcode` will be built into `$GOPATH/bin/`.
 
 ```
 qrcode -- QR Code encoder in Go
-https://github.com/skip2/go-qrcode
 
 Flags:
-  -d	disable QR Code border
-  -i	invert black and white
+  -b int
+        QR Code border size (default 4)
+  -e int
+        error recovery level: 0=lowest, 3=highest (default 3)
+  -i    invert black and white
   -o string
-    	out PNG file prefix, empty for stdout
+        out PNG file prefix, empty for stdout
   -s int
-    	image size (pixel) (default 256)
-  -t	print as text-art on stdout
+        image size (pixel) (default 256)
+  -t    print as text-art on stdout
 
 Usage:
-  1. Arguments except for flags are joined by " " and used to generate QR code.
-     Default output is STDOUT, pipe to imagemagick command "display" to display
-     on any X server.
+  1. Data is read from STDIN and used to generate the QR code.
+     Default output is STDOUT.
 
-       qrcode hello word | display
+     echo "hello world" | qrcode > out.png
 
-  2. Save to file if "display" not available:
+  2. Pipe to imagemagick command "display" to display on any X server.
 
-       qrcode "homepage: https://github.com/skip2/go-qrcode" > out.png
-
+     echo "hello world" | qrcode | display
 ```
 ## Maximum capacity
 The maximum capacity of a QR Code varies according to the content encoded and the error recovery level. The maximum capacity is 2,953 bytes, 4,296 alphanumeric characters, 7,089 numeric digits, or a combination of these.
 
 ## Borderless QR Codes
 
-To aid QR Code reading software, QR codes have a built in whitespace border.
-
-If you know what you're doing, and don't want a border, see https://gist.github.com/skip2/7e3d8a82f5317df9be437f8ec8ec0b7d for how to do it. It's still recommended you include a border manually.
+To aid QR Code reading software, QR codes have a built in whitespace border. To disable it completely, set the border size to 0.
 
 ## Links
 
