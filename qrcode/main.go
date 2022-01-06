@@ -17,7 +17,7 @@ func main() {
 	size := flag.Int("s", 256, "image size (pixel)")
 	textArt := flag.Bool("t", false, "print as text-art on stdout")
 	negative := flag.Bool("i", false, "invert black and white")
-	disableBorder := flag.Bool("d", false, "disable QR Code border")
+	borderSize := flag.Int("b", qrcode.DefaultQuietZoneSize, "QR Code border size")
 	erLevel := flag.Int("e", int(qrcode.Highest), "error recovery level (1=lowest, 4=highest")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `qrcode -- QR Code encoder in Go
@@ -54,9 +54,7 @@ Usage:
 	q, err = qrcode.New(content, recoveryLevel)
 	checkError(err)
 
-	if *disableBorder {
-		q.DisableBorder = true
-	}
+	q.BorderSize = *borderSize
 
 	if *textArt {
 		art := q.ToString(*negative)

@@ -64,6 +64,10 @@ import (
 	reedsolomon "github.com/skip2/go-qrcode/reedsolomon"
 )
 
+// defaultQuietZoneSize returns the number of pixels of border space on each side of
+// the QR Code. The quiet space assists with decoding.
+const DefaultQuietZoneSize = 4
+
 // Encode a QR Code and return a raw PNG image.
 //
 // size is both the image width and height in pixels. If size is too small then
@@ -136,8 +140,8 @@ type QRCode struct {
 	ForegroundColor color.Color
 	BackgroundColor color.Color
 
-	// Disable the QR Code border.
-	DisableBorder bool
+	// QR Code border (quiet zone) size.
+	BorderSize int
 
 	encoder *dataEncoder
 	version qrCodeVersion
@@ -191,6 +195,8 @@ func New(content []byte, level RecoveryLevel) (*QRCode, error) {
 
 		ForegroundColor: color.Black,
 		BackgroundColor: color.White,
+
+		BorderSize: DefaultQuietZoneSize,
 
 		encoder: encoder,
 		data:    encoded,
@@ -403,7 +409,7 @@ func (q *QRCode) encode() {
 		var s *symbol
 		var err error
 
-		s, err = buildRegularSymbol(q.version, mask, encoded, !q.DisableBorder)
+		s, err = buildRegularSymbol(q.version, mask, encoded, q.BorderSize)
 
 		if err != nil {
 			log.Panic(err.Error())
